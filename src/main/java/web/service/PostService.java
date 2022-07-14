@@ -17,18 +17,30 @@ public class PostService {
     }
 
     public List<Post> all() {
-        return repository.all();
+        return repository
+                .all()
+                .stream()
+                .filter(x -> !x.isRemoved())
+                .toList();
     }
 
     public Post getById(long id) {
-        return repository.getById(id).orElseThrow(NotFoundException::new);
+        var post = repository.getById(id).orElseThrow(NotFoundException::new);
+        if (post.isRemoved()) throw new NotFoundException();
+        return post;
     }
 
     public Post save(Post post) {
+        if (post.getId() != 0) {
+            var found = repository.getById(post.getId()).orElseThrow(NotFoundException::new);
+            if (found.isRemoved()) throw new NotFoundException();
+        }
         return repository.save(post);
     }
 
     public void removeById(long id) {
+        var post = repository.getById(id).orElseThrow(NotFoundException::new);
+        if (post.isRemoved()) throw new NotFoundException();
         repository.removeById(id);
     }
 }

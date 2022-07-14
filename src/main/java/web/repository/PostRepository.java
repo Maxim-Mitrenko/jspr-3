@@ -43,7 +43,7 @@ public class PostRepository implements RepositoryInterface {
     @Override
     public void removeById(long id) {
         Post post = getById(id).orElseThrow(NotFoundException::new);
-        posts.remove(post);
+        post.setRemoved(true);
 
     }
 }
