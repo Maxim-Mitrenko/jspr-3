@@ -1,5 +1,7 @@
 package web.model;
 
+import java.util.Objects;
+
 public class Post {
 
     private long id;
@@ -38,5 +40,18 @@ public class Post {
     @Override
     public String toString() {
         return content;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Post post = (Post) o;
+        return id == post.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }
