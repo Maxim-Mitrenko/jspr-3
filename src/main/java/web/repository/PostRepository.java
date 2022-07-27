@@ -5,39 +5,40 @@ import web.exception.NotFoundException;
 import web.model.Post;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
 public class PostRepository implements RepositoryInterface {
 
-    private final List<Post> posts = new CopyOnWriteArrayList<>();
+    private final Map<Long, Post> posts = new ConcurrentHashMap<>();
     private final AtomicInteger size = new AtomicInteger(0);
 
     @Override
     public List<Post> all() {
-        return posts;
+        return posts.values()
+                .stream()
+                .filter(x -> !x.isRemoved())
+                .toList();
     }
 
     @Override
     public Optional<Post> getById(long id) {
-        return posts.stream()
-                .filter(x -> x.getId() == id)
-                .findAny();
+        var post = posts.get(id);
+        return post == null || post.isRemoved() ? Optional.empty() : Optional.of(post);
     }
 
     @Override
     public Post save(Post post) {
         if (post.getId() == 0) {
             post.setId(size.addAndGet(1));
-            posts.add(post);
         } else {
-            final var found = getById(post.getId()).orElseThrow(NotFoundException::new);
-            final var index = posts.indexOf(post);
-            posts.remove(found);
-            posts.add(index, post);
+            var found = getById(post.getId()).orElseThrow(NotFoundException::new);
+            if (found.isRemoved()) throw new NotFoundException();
         }
+        posts.put(post.getId(), post);
         return post;
     }
 
