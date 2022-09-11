@@ -6,6 +6,7 @@ import web.model.Post;
 import web.repository.RepositoryInterface;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class PostService {
@@ -21,7 +22,7 @@ public class PostService {
                 .all()
                 .stream()
                 .filter(x -> !x.isRemoved())
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public Post getById(long id) {

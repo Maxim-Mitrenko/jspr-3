@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Repository
 public class PostRepository implements RepositoryInterface {
@@ -21,7 +22,7 @@ public class PostRepository implements RepositoryInterface {
         return posts.values()
                 .stream()
                 .filter(x -> !x.isRemoved())
-                .toList();
+                .collect(Collectors.toList());
     }
 
     @Override
